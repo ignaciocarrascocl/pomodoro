@@ -1,6 +1,12 @@
 <template>
   <div class="text-center">
-    <h3><i class="bi bi-clock-history"></i> {{ currentModeLabel }}</h3>
+    <h3>
+      <i class="bi bi-clock-history"></i>
+      <span v-if="mode === 'work' && currentTask">
+        Concéntrate en: <strong>{{ currentTask.text }}</strong>
+      </span>
+      <span v-else>{{ currentModeLabel }}</span>
+    </h3>
     <h2>{{ formattedTime }}</h2>
     <div class="mt-3">
       <button class="btn btn-success mx-2" @click="startTimer" :disabled="isRunning">
@@ -13,6 +19,32 @@
         <i class="bi bi-arrow-clockwise"></i> Reiniciar
       </button>
     </div>
+
+    <!-- Botones para cambiar entre modos -->
+    <div class="mt-3 btn-group">
+      <button
+        class="btn"
+        :class="mode === 'work' ? 'btn-primary' : 'btn-outline-primary'"
+        @click="switchMode('work')"
+      >
+        <i class="bi bi-briefcase"></i> Concentración
+      </button>
+      <button
+        class="btn"
+        :class="mode === 'shortBreak' ? 'btn-info' : 'btn-outline-info'"
+        @click="switchMode('shortBreak')"
+      >
+        <i class="bi bi-cup"></i> Descanso corto
+      </button>
+      <button
+        class="btn"
+        :class="mode === 'longBreak' ? 'btn-secondary' : 'btn-outline-secondary'"
+        @click="switchMode('longBreak')"
+      >
+        <i class="bi bi-cup-hot"></i> Descanso largo
+      </button>
+    </div>
+
     <div class="mt-4">
       <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#configModal">
         <i class="bi bi-gear-fill"></i> Configuración
@@ -106,6 +138,14 @@
 <script setup>
 import { ref, computed } from 'vue'
 
+// Props para recibir las tareas desde el componente padre
+const props = defineProps({
+  tasks: {
+    type: Array,
+    required: true,
+  },
+})
+
 // Configuración inicial
 const workMinutes = ref(25)
 const shortBreakMinutes = ref(5)
@@ -116,6 +156,7 @@ const timeLeft = ref(workMinutes.value * 60)
 const isRunning = ref(false)
 const mode = ref('work') // Puede ser 'work', 'shortBreak', o 'longBreak'
 const completedFocusBlocks = ref(0) // Contador de bloques completados
+const currentTask = ref(null) // Tarea actual en la que se trabaja
 let timerInterval = null
 
 // Etiqueta del modo actual
@@ -123,7 +164,7 @@ const currentModeLabel = computed(() => {
   if (mode.value === 'work') return 'Concentración'
   if (mode.value === 'shortBreak') return 'Descanso corto'
   if (mode.value === 'longBreak') return 'Descanso largo'
-  return 'Modo desconocido' // Default return value
+  return 'Modo desconocido'
 })
 
 // Formatear el tiempo en minutos y segundos
@@ -135,8 +176,45 @@ const formattedTime = computed(() => {
   return `${minutes}:${seconds}`
 })
 
+// Buscar la primera tarea pendiente
+const findPendingTask = () => {
+  return props.tasks.find((task) => !task.completed)
+}
+
+// Cambiar entre modos manualmente
+const switchMode = (newMode) => {
+  if (isRunning.value) {
+    pauseTimer()
+  }
+
+  // Si cambiamos a modo trabajo, buscar una tarea pendiente
+  if (newMode === 'work') {
+    currentTask.value = findPendingTask()
+    if (!currentTask.value && props.tasks.length > 0) {
+      alert('Todas las tareas están completadas. Considera crear nuevas tareas.')
+    }
+  }
+
+  setMode(newMode)
+}
+
 // Iniciar el temporizador
 const startTimer = () => {
+  if (props.tasks.length === 0) {
+    alert('Por favor, crea una tarea primero.')
+    return
+  }
+
+  // Si estamos en modo trabajo, necesitamos una tarea
+  if (mode.value === 'work') {
+    const pendingTask = findPendingTask()
+    if (!pendingTask) {
+      alert('Todas las tareas están completadas. ¡Crea una nueva!')
+      return
+    }
+    currentTask.value = pendingTask
+  }
+
   if (!isRunning.value) {
     isRunning.value = true
     timerInterval = setInterval(() => {
@@ -162,6 +240,8 @@ const handleTimerEnd = () => {
       setMode('shortBreak')
     }
   } else {
+    // Buscar la siguiente tarea pendiente cuando volvemos a trabajar
+    currentTask.value = findPendingTask()
     setMode('work')
   }
   alert('¡Tiempo terminado!')
@@ -213,5 +293,8 @@ button {
 input {
   width: 100%;
   text-align: center;
+}
+.btn-group .btn {
+  font-size: 1rem;
 }
 </style>

@@ -19,15 +19,38 @@
         :key="index"
         class="list-group-item d-flex justify-content-between align-items-center"
       >
-        <div>
-          <input type="checkbox" class="form-check-input me-2" v-model="task.completed" />
+        <div class="d-flex align-items-center flex-grow-1">
+          <input
+            type="checkbox"
+            class="form-check-input me-2"
+            :checked="task.completed"
+            @change="toggleTask(index)"
+          />
           <span :class="{ 'text-decoration-line-through': task.completed }">
             {{ task.text }}
           </span>
         </div>
-        <button class="btn btn-danger btn-sm" @click="removeTask(index)">
-          <i class="bi bi-trash"></i>
-        </button>
+        <div class="d-flex">
+          <button
+            class="btn btn-sm btn-outline-secondary me-1"
+            @click="moveTaskUp(index)"
+            :disabled="index === 0"
+            title="Mover arriba"
+          >
+            <i class="bi bi-arrow-up"></i>
+          </button>
+          <button
+            class="btn btn-sm btn-outline-secondary me-1"
+            @click="moveTaskDown(index)"
+            :disabled="index === tasks.length - 1"
+            title="Mover abajo"
+          >
+            <i class="bi bi-arrow-down"></i>
+          </button>
+          <button class="btn btn-sm btn-danger" @click="removeTask(index)" title="Eliminar">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
       </li>
     </ul>
     <p v-if="tasks.length === 0" class="text-muted mt-3">
@@ -44,40 +67,82 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, onMounted, watch, defineProps, defineEmits } from 'vue'
 
-// Lista de tareas
-const tasks = ref(JSON.parse(localStorage.getItem('tasks')) || [])
-const newTask = ref('') // Nueva tarea
+const props = defineProps({
+  tasks: {
+    type: Array,
+    required: true,
+  },
+})
+
+const emit = defineEmits(['update:tasks'])
+const newTask = ref('')
+
+// Cargar tareas desde localStorage al inicio
+onMounted(() => {
+  const storedTasks = JSON.parse(localStorage.getItem('tasks')) || []
+  if (storedTasks.length > 0 && props.tasks.length === 0) {
+    emit('update:tasks', storedTasks)
+  }
+})
+
+// Guardar tareas en localStorage cuando cambien
+watch(
+  () => props.tasks,
+  (newTasks) => {
+    localStorage.setItem('tasks', JSON.stringify(newTasks))
+  },
+  { deep: true },
+)
 
 // Agregar una nueva tarea
 const addTask = () => {
   if (newTask.value.trim() !== '') {
-    tasks.value.push({ text: newTask.value.trim(), completed: false })
+    const updatedTasks = [...props.tasks, { text: newTask.value.trim(), completed: false }]
+    emit('update:tasks', updatedTasks)
     newTask.value = ''
-    saveTasks()
   }
+}
+
+// Marcar tarea como completada/no completada
+const toggleTask = (index) => {
+  const updatedTasks = [...props.tasks]
+  updatedTasks[index].completed = !updatedTasks[index].completed
+  emit('update:tasks', updatedTasks)
 }
 
 // Eliminar una tarea
 const removeTask = (index) => {
-  tasks.value.splice(index, 1)
-  saveTasks()
+  const updatedTasks = props.tasks.filter((_, i) => i !== index)
+  emit('update:tasks', updatedTasks)
 }
 
 // Eliminar tareas completadas
 const removeCompletedTasks = () => {
-  tasks.value = tasks.value.filter((task) => !task.completed)
-  saveTasks()
+  const updatedTasks = props.tasks.filter((task) => !task.completed)
+  emit('update:tasks', updatedTasks)
 }
 
-// Guardar tareas en Local Storage
-const saveTasks = () => {
-  localStorage.setItem('tasks', JSON.stringify(tasks.value))
+// Mover tarea hacia arriba
+const moveTaskUp = (index) => {
+  if (index === 0) return // Ya está en la parte superior
+  const updatedTasks = [...props.tasks]
+  const temp = updatedTasks[index]
+  updatedTasks[index] = updatedTasks[index - 1]
+  updatedTasks[index - 1] = temp
+  emit('update:tasks', updatedTasks)
 }
 
-// Observar cambios en la lista de tareas y guardar automáticamente
-watch(tasks, saveTasks, { deep: true })
+// Mover tarea hacia abajo
+const moveTaskDown = (index) => {
+  if (index === props.tasks.length - 1) return // Ya está en la parte inferior
+  const updatedTasks = [...props.tasks]
+  const temp = updatedTasks[index]
+  updatedTasks[index] = updatedTasks[index + 1]
+  updatedTasks[index + 1] = temp
+  emit('update:tasks', updatedTasks)
+}
 </script>
 
 <style scoped>
