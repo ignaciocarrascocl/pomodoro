@@ -1,142 +1,57 @@
 <template>
-  <div class="text-center">
-    <h3>
-      <i class="bi bi-clock-history"></i>
-      <span v-if="mode === 'work' && currentTask">
-        Concéntrate en: <strong>{{ currentTask.text }}</strong>
-      </span>
-      <span v-else>{{ currentModeLabel }}</span>
-    </h3>
-    <h2>{{ formattedTime }}</h2>
-    <div class="mt-3">
-      <button class="btn btn-success mx-2" @click="startTimer" :disabled="isRunning">
-        <i class="bi bi-play-fill"></i> Iniciar
-      </button>
-      <button class="btn btn-warning mx-2" @click="pauseTimer" :disabled="!isRunning">
-        <i class="bi bi-pause-fill"></i> Pausar
-      </button>
-      <button class="btn btn-danger mx-2" @click="resetTimer">
-        <i class="bi bi-arrow-clockwise"></i> Reiniciar
-      </button>
-    </div>
+  <div class="pomodoro-container text-center">
+    <div class="timer-card">
+      <!-- Botón de configuración en esquina superior derecha -->
+      <div class="settings-wrapper">
+        <button
+          class="btn settings-btn"
+          data-bs-toggle="modal"
+          data-bs-target="#configModal"
+          title="Configuración"
+        >
+          <i class="bi bi-gear-fill"></i>
+        </button>
+      </div>
 
-    <!-- Botones para cambiar entre modos -->
-    <div class="mt-3 btn-group">
-      <button
-        class="btn"
-        :class="mode === 'work' ? 'btn-primary' : 'btn-outline-primary'"
-        @click="switchMode('work')"
-      >
-        <i class="bi bi-briefcase"></i> Concentración
-      </button>
-      <button
-        class="btn"
-        :class="mode === 'shortBreak' ? 'btn-info' : 'btn-outline-info'"
-        @click="switchMode('shortBreak')"
-      >
-        <i class="bi bi-cup"></i> Descanso corto
-      </button>
-      <button
-        class="btn"
-        :class="mode === 'longBreak' ? 'btn-secondary' : 'btn-outline-secondary'"
-        @click="switchMode('longBreak')"
-      >
-        <i class="bi bi-cup-hot"></i> Descanso largo
-      </button>
-    </div>
+      <!-- Temporizador -->
+      <TimerDisplay
+        :formatted-time="formattedTime"
+        :current-mode-label="currentModeLabel"
+        :mode-icon="modeIcon"
+        :mode="mode"
+        :current-task="currentTask"
+      />
 
-    <div class="mt-4">
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#configModal">
-        <i class="bi bi-gear-fill"></i> Configuración
-      </button>
+      <!-- Controles -->
+      <TimerControls
+        :is-running="isRunning"
+        @start="startTimer"
+        @pause="pauseTimer"
+        @reset="resetTimer"
+      />
+
+      <!-- Selector de modo -->
+      <ModeSelector :current-mode="mode" @switch-mode="switchMode" />
     </div>
 
     <!-- Modal de configuración -->
-    <div
-      class="modal fade"
-      id="configModal"
-      tabindex="-1"
-      aria-labelledby="configModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="configModalLabel">
-              <i class="bi bi-sliders"></i> Configuración
-            </h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label for="workTime" class="form-label">Concentración (min):</label>
-              <input
-                id="workTime"
-                type="number"
-                v-model.number="workMinutes"
-                class="form-control"
-                min="1"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="shortBreak" class="form-label">Descanso corto (min):</label>
-              <input
-                id="shortBreak"
-                type="number"
-                v-model.number="shortBreakMinutes"
-                class="form-control"
-                min="1"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="longBreak" class="form-label">Descanso largo (min):</label>
-              <input
-                id="longBreak"
-                type="number"
-                v-model.number="longBreakMinutes"
-                class="form-control"
-                min="1"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="focusBlocks" class="form-label"
-                >Bloques de concentración antes de descanso largo:</label
-              >
-              <input
-                id="focusBlocks"
-                type="number"
-                v-model.number="focusBlocks"
-                class="form-control"
-                min="1"
-              />
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-              <i class="bi bi-x-circle"></i> Cerrar
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary"
-              @click="applySettings"
-              data-bs-dismiss="modal"
-            >
-              <i class="bi bi-check-circle"></i> Guardar
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <ConfigModal
+      :work-minutes="workMinutes"
+      :short-break-minutes="shortBreakMinutes"
+      :long-break-minutes="longBreakMinutes"
+      :focus-blocks="focusBlocks"
+      @save="saveConfig"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { toRef } from 'vue'
+import TimerDisplay from './pomodoro/TimerDisplay.vue'
+import TimerControls from './pomodoro/TimerControls.vue'
+import ModeSelector from './pomodoro/ModeSelector.vue'
+import ConfigModal from './pomodoro/ConfigModal.vue'
+import usePomodoro from './pomodoro/usePomodoro.js'
 
 // Props para recibir las tareas desde el componente padre
 const props = defineProps({
@@ -146,155 +61,86 @@ const props = defineProps({
   },
 })
 
-// Configuración inicial
-const workMinutes = ref(25)
-const shortBreakMinutes = ref(5)
-const longBreakMinutes = ref(15)
-const focusBlocks = ref(4) // Número de bloques de concentración antes de un descanso largo
+// Convertir props.tasks a ref para usar en el composable
+const tasksRef = toRef(props, 'tasks')
 
-const timeLeft = ref(workMinutes.value * 60)
-const isRunning = ref(false)
-const mode = ref('work') // Puede ser 'work', 'shortBreak', o 'longBreak'
-const completedFocusBlocks = ref(0) // Contador de bloques completados
-const currentTask = ref(null) // Tarea actual en la que se trabaja
-let timerInterval = null
+// Usar el composable para la lógica del temporizador
+const {
+  workMinutes,
+  shortBreakMinutes,
+  longBreakMinutes,
+  focusBlocks,
+  isRunning,
+  mode,
+  currentTask,
+  currentModeLabel,
+  modeIcon,
+  formattedTime,
+  startTimer,
+  pauseTimer,
+  resetTimer,
+  switchMode,
+} = usePomodoro(tasksRef)
 
-// Etiqueta del modo actual
-const currentModeLabel = computed(() => {
-  if (mode.value === 'work') return 'Concentración'
-  if (mode.value === 'shortBreak') return 'Descanso corto'
-  if (mode.value === 'longBreak') return 'Descanso largo'
-  return 'Modo desconocido'
-})
-
-// Formatear el tiempo en minutos y segundos
-const formattedTime = computed(() => {
-  const minutes = Math.floor(timeLeft.value / 60)
-    .toString()
-    .padStart(2, '0')
-  const seconds = (timeLeft.value % 60).toString().padStart(2, '0')
-  return `${minutes}:${seconds}`
-})
-
-// Buscar la primera tarea pendiente
-const findPendingTask = () => {
-  return props.tasks.find((task) => !task.completed)
-}
-
-// Cambiar entre modos manualmente
-const switchMode = (newMode) => {
-  if (isRunning.value) {
-    pauseTimer()
-  }
-
-  // Si cambiamos a modo trabajo, buscar una tarea pendiente
-  if (newMode === 'work') {
-    currentTask.value = findPendingTask()
-    if (!currentTask.value && props.tasks.length > 0) {
-      alert('Todas las tareas están completadas. Considera crear nuevas tareas.')
-    }
-  }
-
-  setMode(newMode)
-}
-
-// Iniciar el temporizador
-const startTimer = () => {
-  if (props.tasks.length === 0) {
-    alert('Por favor, crea una tarea primero.')
-    return
-  }
-
-  // Si estamos en modo trabajo, necesitamos una tarea
-  if (mode.value === 'work') {
-    const pendingTask = findPendingTask()
-    if (!pendingTask) {
-      alert('Todas las tareas están completadas. ¡Crea una nueva!')
-      return
-    }
-    currentTask.value = pendingTask
-  }
-
-  if (!isRunning.value) {
-    isRunning.value = true
-    timerInterval = setInterval(() => {
-      if (timeLeft.value > 0) {
-        timeLeft.value--
-      } else {
-        clearInterval(timerInterval)
-        isRunning.value = false
-        handleTimerEnd()
-      }
-    }, 1000)
-  }
-}
-
-// Manejar el final del temporizador
-const handleTimerEnd = () => {
-  if (mode.value === 'work') {
-    completedFocusBlocks.value++
-    if (completedFocusBlocks.value >= focusBlocks.value) {
-      setMode('longBreak')
-      completedFocusBlocks.value = 0
-    } else {
-      setMode('shortBreak')
-    }
-  } else {
-    // Buscar la siguiente tarea pendiente cuando volvemos a trabajar
-    currentTask.value = findPendingTask()
-    setMode('work')
-  }
-  alert('¡Tiempo terminado!')
-}
-
-// Pausar el temporizador
-const pauseTimer = () => {
-  isRunning.value = false
-  clearInterval(timerInterval)
-}
-
-// Reiniciar el temporizador
-const resetTimer = () => {
-  isRunning.value = false
-  clearInterval(timerInterval)
-  setMode(mode.value)
-}
-
-// Cambiar entre modos (concentración, descanso corto, descanso largo)
-const setMode = (newMode) => {
-  mode.value = newMode
-  if (newMode === 'work') {
-    timeLeft.value = workMinutes.value * 60
-  } else if (newMode === 'shortBreak') {
-    timeLeft.value = shortBreakMinutes.value * 60
-  } else if (newMode === 'longBreak') {
-    timeLeft.value = longBreakMinutes.value * 60
-  }
-}
-
-// Aplicar configuraciones desde el modal
-const applySettings = () => {
+// Guardar configuración
+const saveConfig = (config) => {
+  workMinutes.value = config.workMinutes
+  shortBreakMinutes.value = config.shortBreakMinutes
+  longBreakMinutes.value = config.longBreakMinutes
+  focusBlocks.value = config.focusBlocks
   resetTimer()
 }
 </script>
 
 <style scoped>
-h2 {
-  font-size: 3rem;
-  font-weight: bold;
+.pomodoro-container {
+  max-width: 650px;
+  margin: 0 auto;
 }
-h3 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+
+.timer-card {
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 15px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
 }
-button {
+
+.settings-wrapper {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 10;
+}
+
+.settings-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  color: #777;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.settings-btn:hover {
+  background-color: #f0f0f0;
+  color: #333;
+  transform: rotate(30deg);
+}
+
+.settings-btn i {
   font-size: 1.2rem;
 }
-input {
-  width: 100%;
-  text-align: center;
-}
-.btn-group .btn {
-  font-size: 1rem;
+
+@media (max-width: 576px) {
+  .timer-card {
+    padding: 1.5rem;
+  }
 }
 </style>

@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h1>Home</h1>
     <PomodoroTimer :tasks="tasks" />
     <TodoList v-model:tasks="tasks" />
   </div>

@@ -13,46 +13,41 @@
         <i class="bi bi-plus-circle"></i> Agregar
       </button>
     </div>
-    <ul class="list-group">
-      <li
-        v-for="(task, index) in tasks"
-        :key="index"
-        class="list-group-item d-flex justify-content-between align-items-center"
-      >
-        <div class="d-flex align-items-center flex-grow-1">
-          <input
-            type="checkbox"
-            class="form-check-input me-2"
-            :checked="task.completed"
-            @change="toggleTask(index)"
-          />
-          <span :class="{ 'text-decoration-line-through': task.completed }">
-            {{ task.text }}
-          </span>
-        </div>
-        <div class="d-flex">
-          <button
-            class="btn btn-sm btn-outline-secondary me-1"
-            @click="moveTaskUp(index)"
-            :disabled="index === 0"
-            title="Mover arriba"
-          >
-            <i class="bi bi-arrow-up"></i>
-          </button>
-          <button
-            class="btn btn-sm btn-outline-secondary me-1"
-            @click="moveTaskDown(index)"
-            :disabled="index === tasks.length - 1"
-            title="Mover abajo"
-          >
-            <i class="bi bi-arrow-down"></i>
-          </button>
-          <button class="btn btn-sm btn-danger" @click="removeTask(index)" title="Eliminar">
-            <i class="bi bi-trash"></i>
-          </button>
-        </div>
-      </li>
-    </ul>
+
+    <!-- Lista de tareas arrastrables -->
+    <draggable
+      v-model="localTasks"
+      :animation="200"
+      item-key="id"
+      class="list-group"
+      handle=".drag-handle"
+      @change="updateTasks"
+    >
+      <template #item="{ element, index }">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center flex-grow-1">
+            <span class="drag-handle me-2 text-muted" title="Arrastrar para reordenar">
+              <i class="bi bi-grip-vertical"></i>
+            </span>
+            <input
+              type="checkbox"
+              class="form-check-input me-2"
+              :checked="element.completed"
+              @change="toggleTask(index)"
+            />
+            <span :class="{ 'text-decoration-line-through': element.completed }">
+              {{ element.text }}
+            </span>
+          </div>
+          <div class="d-flex">
+            <button class="btn btn-sm btn-danger" @click="removeTask(index)" title="Eliminar">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </li>
+      </template>
+    </draggable>
+
     <p v-if="tasks.length === 0" class="text-muted mt-3">
       <i class="bi bi-info-circle"></i> No hay tareas. ¡Agrega una nueva!
     </p>
@@ -67,7 +62,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, defineProps, defineEmits } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
+import draggable from 'vuedraggable'
 
 const props = defineProps({
   tasks: {
@@ -79,13 +75,40 @@ const props = defineProps({
 const emit = defineEmits(['update:tasks'])
 const newTask = ref('')
 
+// Crear una copia local de las tareas con identificadores únicos
+const localTasks = computed({
+  get: () => {
+    return props.tasks.map((task) => {
+      if (!task.id) {
+        return { ...task, id: Date.now() + Math.random() }
+      }
+      return task
+    })
+  },
+  set: (value) => {
+    emit('update:tasks', value)
+  },
+})
+
 // Cargar tareas desde localStorage al inicio
 onMounted(() => {
   const storedTasks = JSON.parse(localStorage.getItem('tasks')) || []
   if (storedTasks.length > 0 && props.tasks.length === 0) {
-    emit('update:tasks', storedTasks)
+    // Añadir IDs si no existen
+    const tasksWithIds = storedTasks.map((task) => {
+      if (!task.id) {
+        return { ...task, id: Date.now() + Math.random() }
+      }
+      return task
+    })
+    emit('update:tasks', tasksWithIds)
   }
 })
+
+// Actualizar tareas después de arrastrar
+const updateTasks = () => {
+  // La actualización se realiza automáticamente a través del v-model
+}
 
 // Guardar tareas en localStorage cuando cambien
 watch(
@@ -99,7 +122,14 @@ watch(
 // Agregar una nueva tarea
 const addTask = () => {
   if (newTask.value.trim() !== '') {
-    const updatedTasks = [...props.tasks, { text: newTask.value.trim(), completed: false }]
+    const updatedTasks = [
+      ...props.tasks,
+      {
+        id: Date.now(),
+        text: newTask.value.trim(),
+        completed: false,
+      },
+    ]
     emit('update:tasks', updatedTasks)
     newTask.value = ''
   }
@@ -121,26 +151,6 @@ const removeTask = (index) => {
 // Eliminar tareas completadas
 const removeCompletedTasks = () => {
   const updatedTasks = props.tasks.filter((task) => !task.completed)
-  emit('update:tasks', updatedTasks)
-}
-
-// Mover tarea hacia arriba
-const moveTaskUp = (index) => {
-  if (index === 0) return // Ya está en la parte superior
-  const updatedTasks = [...props.tasks]
-  const temp = updatedTasks[index]
-  updatedTasks[index] = updatedTasks[index - 1]
-  updatedTasks[index - 1] = temp
-  emit('update:tasks', updatedTasks)
-}
-
-// Mover tarea hacia abajo
-const moveTaskDown = (index) => {
-  if (index === props.tasks.length - 1) return // Ya está en la parte inferior
-  const updatedTasks = [...props.tasks]
-  const temp = updatedTasks[index]
-  updatedTasks[index] = updatedTasks[index + 1]
-  updatedTasks[index + 1] = temp
   emit('update:tasks', updatedTasks)
 }
 </script>
@@ -165,5 +175,13 @@ h3 {
 
 .text-decoration-line-through {
   color: gray;
+}
+
+.drag-handle {
+  cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }
 </style>
