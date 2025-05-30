@@ -1,4 +1,3 @@
-vue
 <template>
   <div
     class="modal fade"
@@ -18,6 +17,7 @@ vue
             class="btn-close custom-close"
             data-bs-dismiss="modal"
             aria-label="Close"
+            @click="playUiSound"
           ></button>
         </div>
         <div class="modal-body pb-0">
@@ -90,6 +90,7 @@ vue
             type="button"
             class="btn btn-outline-secondary btn-rounded"
             data-bs-dismiss="modal"
+            @click="playUiSound"
           >
             <i class="bi bi-x-circle"></i> Cancelar
           </button>
@@ -136,6 +137,12 @@ const localShortBreakMinutes = ref(props.shortBreakMinutes)
 const localLongBreakMinutes = ref(props.longBreakMinutes)
 const localFocusBlocks = ref(props.focusBlocks)
 
+// Función para reproducir sonido de UI
+const playUiSound = () => {
+  const audio = new Audio('/sounds/ui.mp3')
+  audio.play().catch(error => console.error('Error playing UI sound:', error))
+}
+
 // Actualizar valores locales cuando cambian las props
 watch(
   () => props.workMinutes,
@@ -177,12 +184,14 @@ const saveConfig = () => {
 .custom-modal {
   border-radius: 15px;
   overflow: hidden;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+  background-color: var(--color-background-soft);
+  border: 1px solid var(--color-border);
 }
 
 .modal-title {
   font-weight: 600;
-  color: #333;
+  color: var(--color-heading);
   font-size: 1.4rem;
   display: flex;
   align-items: center;
@@ -190,13 +199,14 @@ const saveConfig = () => {
 
 .modal-title i {
   margin-right: 10px;
-  color: #0d6efd;
+  color: var(--color-primary);
 }
 
 .custom-close {
   background: transparent;
   opacity: 0.6;
   transition: all 0.3s;
+  filter: brightness(0) invert(1);
 }
 
 .custom-close:hover {
@@ -214,7 +224,7 @@ const saveConfig = () => {
 
 .config-label {
   font-weight: 500;
-  color: #555;
+  color: var(--color-text);
   display: flex;
   align-items: center;
   font-size: 1.05rem;
@@ -222,7 +232,7 @@ const saveConfig = () => {
 
 .config-label i {
   margin-right: 10px;
-  color: #0d6efd;
+  color: var(--color-primary);
   font-size: 1.1rem;
 }
 
@@ -237,17 +247,20 @@ const saveConfig = () => {
   font-weight: 600;
   width: 80px;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-background-mute);
+  color: var(--color-heading);
   transition: all 0.3s;
 }
 
 .custom-input:focus {
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(65, 90, 119, 0.3);
+  background-color: var(--color-background-soft);
 }
 
 .config-unit {
-  color: #777;
+  color: var(--color-text);
   margin-left: 8px;
   width: 60px;
   font-size: 0.9rem;
@@ -262,22 +275,43 @@ const saveConfig = () => {
 }
 
 .btn-outline-secondary {
-  border-color: #ddd;
+  border-color: var(--color-border);
+  color: var(--color-text);
+  background-color: transparent;
 }
 
 .btn-outline-secondary:hover {
-  background-color: #f5f5f5;
-  border-color: #ccc;
+  background-color: var(--color-background-mute);
+  border-color: var(--color-border-hover);
+  color: var(--color-heading);
 }
 
 .btn-primary {
-  background-color: #0d6efd;
-  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 10px rgba(65, 90, 119, 0.4);
 }
 
 .btn-primary:hover {
+  background-color: #34495a;
+  border-color: #34495a;
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(13, 110, 253, 0.4);
+  box-shadow: 0 6px 15px rgba(65, 90, 119, 0.5);
+}
+
+/* Bootstrap modal overrides for dark theme */
+.modal-header {
+  background-color: var(--color-background-soft);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.modal-body {
+  background-color: var(--color-background-soft);
+}
+
+.modal-footer {
+  background-color: var(--color-background-soft);
+  border-top: 1px solid var(--color-border);
 }
 
 @media (max-width: 576px) {

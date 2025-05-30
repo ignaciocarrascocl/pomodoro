@@ -1,0 +1,28 @@
+@import './base.css';
+
+/* Global dark theme styles */
+body {
+  background-color: var(--color-background) !important;
+  color: var(--color-text) !important;
+  min-height: 100vh;
+}
+
+#app {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
+/* Override Bootstrap defaults for dark theme */
+.container {
+  color: var(--color-text);
+}
+
+/* Ensure all text inherits the dark theme colors */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-heading);
+}
+
+p, span, div {
+  color: var(--color-text);
+}

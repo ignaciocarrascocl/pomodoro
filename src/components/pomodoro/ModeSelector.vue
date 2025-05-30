@@ -54,7 +54,7 @@ const onSwitchMode = (mode) => emit('switch-mode', mode)
   border: none;
   padding: 10px 15px;
   border-radius: 10px;
-  color: #777;
+  color: var(--color-text-muted);
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -68,17 +68,14 @@ const onSwitchMode = (mode) => emit('switch-mode', mode)
 }
 
 .mode-btn:hover {
-  background-color: #f5f5f5;
+  background-color: rgba(65, 90, 119, 0.2);
+  color: var(--color-text);
 }
 
 .mode-btn.active {
-  background-color: #f0f0f0;
-  color: #333;
+  background-color: rgba(65, 90, 119, 0.3);
+  color: var(--color-primary);
   font-weight: 600;
-}
-
-.mode-btn.active {
-  color: #0d6efd;
 }
 
 @media (max-width: 576px) {

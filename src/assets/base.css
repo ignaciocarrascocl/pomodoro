@@ -19,19 +19,36 @@
   --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
   --vt-c-text-dark-1: var(--vt-c-white);
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
+
+  /* New Color Palette */
+  --rich-black: #0d1b2a;
+  --oxford-blue: #1b263b;
+  --yinmn-blue: #415a77;
+  --silver-lake-blue: #778da9;
+  --platinum: #e0e1dd;
+
+  /* Semantic color mappings using new palette */
+  --color-primary: var(--yinmn-blue);
+  --color-secondary: var(--silver-lake-blue);
+  --color-accent: var(--yinmn-blue);
+  --color-dark: var(--rich-black);
+  --color-surface: var(--oxford-blue);
+  --color-surface-dark: var(--rich-black);
+  --color-text: var(--platinum);
+  --color-text-muted: var(--silver-lake-blue);
 }
 
-/* semantic color variables for this project */
+/* Dark theme as default */
 :root {
-  --color-background: var(--vt-c-white);
-  --color-background-soft: var(--vt-c-white-soft);
-  --color-background-mute: var(--vt-c-white-mute);
+  --color-background: var(--rich-black);
+  --color-background-soft: var(--oxford-blue);
+  --color-background-mute: #162230;
 
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
+  --color-border: rgba(119, 141, 169, 0.2);
+  --color-border-hover: rgba(119, 141, 169, 0.4);
 
-  --color-heading: var(--vt-c-text-light-1);
-  --color-text: var(--vt-c-text-light-1);
+  --color-heading: var(--platinum);
+  --color-text: var(--platinum);
 
   --section-gap: 160px;
 }

@@ -11,11 +11,6 @@ const router = createRouter({
       component: HomeView, // Asegúrate de que esta ruta apunte a HomeView.vue
     },
     {
-      path: '/about',
-      name: 'about',
-      component: () => import('../views/AboutView.vue'),
-    },
-    {
       path: '/que-es-pomodoro',
       name: 'que-es-pomodoro',
       component: QueEsPomodoroView,

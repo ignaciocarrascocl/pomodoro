@@ -39,18 +39,19 @@ defineProps({
 <style scoped>
 .timer-status {
   font-size: 1.25rem;
-  color: #555;
+  color: var(--color-text);
   margin-bottom: 1rem;
 }
 
 .timer-status i {
   margin-right: 0.5rem;
+  color: var(--color-primary);
 }
 
 .timer-display {
   font-size: 5rem;
   font-weight: 700;
-  color: #333;
+  color: var(--color-heading);
   font-family: 'Roboto Mono', monospace;
   line-height: 1.2;
   letter-spacing: 3px;

@@ -8,6 +8,7 @@
           data-bs-toggle="modal"
           data-bs-target="#configModal"
           title="Configuración"
+          @click="playUiSound"
         >
           <i class="bi bi-gear-fill"></i>
         </button>
@@ -64,6 +65,12 @@ const props = defineProps({
 // Convertir props.tasks a ref para usar en el composable
 const tasksRef = toRef(props, 'tasks')
 
+// Función para reproducir sonido de UI
+const playUiSound = () => {
+  const audio = new Audio('/sounds/ui.mp3')
+  audio.play().catch(error => console.error('Error playing UI sound:', error))
+}
+
 // Usar el composable para la lógica del temporizador
 const {
   workMinutes,
@@ -100,11 +107,12 @@ const saveConfig = (config) => {
 
 .timer-card {
   position: relative;
-  background-color: #ffffff;
+  background-color: var(--color-background-soft);
   border-radius: 15px;
   padding: 2.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   margin-bottom: 2rem;
+  border: 1px solid var(--color-border);
 }
 
 .settings-wrapper {
@@ -123,14 +131,14 @@ const saveConfig = (config) => {
   align-items: center;
   justify-content: center;
   background-color: transparent;
-  color: #777;
+  color: var(--color-text);
   transition: all 0.3s ease;
   border: none;
 }
 
 .settings-btn:hover {
-  background-color: #f0f0f0;
-  color: #333;
+  background-color: rgba(65, 90, 119, 0.3);
+  color: var(--color-primary);
   transform: rotate(30deg);
 }
 

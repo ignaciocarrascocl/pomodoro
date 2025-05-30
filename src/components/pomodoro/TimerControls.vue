@@ -34,5 +34,38 @@ const onReset = () => emit('reset')
   padding: 10px 25px;
   font-size: 1.1rem;
   border-radius: 50px;
+  border: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-success {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.btn-success:hover {
+  background-color: #34495a;
+  border-color: #34495a;
+}
+
+.btn-warning {
+  background-color: var(--silver-lake-blue);
+  border-color: var(--silver-lake-blue);
+}
+
+.btn-warning:hover {
+  background-color: #6b7f94;
+  border-color: #6b7f94;
+}
+
+.btn-danger {
+  background-color: var(--oxford-blue);
+  border-color: var(--oxford-blue);
+}
+
+.btn-danger:hover {
+  background-color: #15202e;
+  border-color: #15202e;
 }
 </style>

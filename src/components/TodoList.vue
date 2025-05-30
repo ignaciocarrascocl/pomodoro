@@ -165,23 +165,108 @@ const removeCompletedTasks = () => {
 h3 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
+  color: var(--color-heading);
+}
+
+h3 i {
+  color: var(--color-primary);
+  margin-right: 0.5rem;
+}
+
+.input-group .form-control {
+  border-color: var(--color-border);
+  background-color: var(--color-background-soft);
+  color: var(--color-text);
+}
+
+.input-group .form-control:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(65, 90, 119, 0.3);
+  background-color: var(--color-background-mute);
+  color: var(--color-heading);
+}
+
+.input-group .form-control::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+.btn-success {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.btn-success:hover {
+  background-color: #34495a;
+  border-color: #34495a;
 }
 
 .list-group-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-color: var(--color-border);
+  background-color: var(--color-background-soft);
+  color: var(--color-text);
+}
+
+.list-group-item:hover {
+  background-color: var(--color-background-mute);
 }
 
 .text-decoration-line-through {
-  color: gray;
+  color: var(--color-text-muted);
+  opacity: 0.6;
 }
 
 .drag-handle {
   cursor: grab;
+  color: var(--color-text-muted);
+  opacity: 0.7;
 }
 
 .drag-handle:active {
   cursor: grabbing;
+}
+
+.drag-handle:hover {
+  color: var(--color-primary);
+  opacity: 1;
+}
+
+.btn-danger {
+  background-color: var(--oxford-blue);
+  border-color: var(--oxford-blue);
+  font-size: 0.8rem;
+}
+
+.btn-danger:hover {
+  background-color: #15202e;
+  border-color: #15202e;
+}
+
+.text-muted {
+  color: var(--color-text-muted) !important;
+  opacity: 0.7;
+}
+
+.text-muted i {
+  color: var(--color-primary);
+}
+
+/* Custom checkbox styling for dark theme */
+.form-check-input {
+  background-color: var(--color-background-mute);
+  border-color: var(--color-border);
+}
+
+.form-check-input:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.form-check-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.25rem rgba(65, 90, 119, 0.25);
 }
 </style>

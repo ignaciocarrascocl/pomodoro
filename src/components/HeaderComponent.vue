@@ -31,12 +31,6 @@
               <span>Qué es Pomodoro</span>
             </RouterLink>
           </li>
-          <li class="nav-item">
-            <RouterLink to="/about" class="nav-link" @click="closeNavbar">
-              <i class="bi bi-people"></i>
-              <span>Sobre nosotros</span>
-            </RouterLink>
-          </li>
         </ul>
       </nav>
     </div>
@@ -63,10 +57,11 @@ const closeNavbar = () => {
 
 <style scoped>
 .app-header {
-  background-color: white;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  background-color: var(--color-background-soft);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
   padding: 0;
   margin-bottom: 2rem;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .header-container {
@@ -74,7 +69,7 @@ const closeNavbar = () => {
   align-items: center;
   justify-content: space-between;
   padding: 1rem 0;
-  flex-wrap: nowrap; /* Evitar que los elementos se apilen en escritorio */
+  flex-wrap: nowrap;
 }
 
 .logo-container {
@@ -85,43 +80,43 @@ const closeNavbar = () => {
 
 .logo-icon {
   font-size: 1.8rem;
-  color: #0d6efd;
+  color: var(--color-primary);
   margin-right: 10px;
 }
 
 .app-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #333;
+  color: var(--color-heading);
   margin: 0;
 }
 
 .navbar-toggler {
   background: transparent;
   border: none;
-  color: #333;
+  color: var(--color-heading);
   font-size: 1.5rem;
   padding: 8px;
   cursor: pointer;
   border-radius: 5px;
   transition: background-color 0.3s;
-  display: none; /* Oculto en escritorio */
+  display: none;
 }
 
 .navbar-toggler:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--color-background-mute);
 }
 
 .navbar-collapse {
-  display: flex; /* Visible en escritorio */
+  display: flex;
   align-items: center;
 }
 
 .navbar-nav {
   display: flex;
-  flex-direction: row; /* Horizontal en escritorio */
+  flex-direction: row;
   list-style: none;
-  margin: 0 0 0 auto; /* Alinea a la derecha */
+  margin: 0 0 0 auto;
   padding: 0;
   gap: 0.5rem;
 }
@@ -133,7 +128,7 @@ const closeNavbar = () => {
 .nav-link {
   display: flex;
   align-items: center;
-  color: #555;
+  color: var(--color-text);
   text-decoration: none;
   padding: 0.5rem 1rem;
   font-weight: 500;
@@ -148,8 +143,8 @@ const closeNavbar = () => {
 
 .nav-link:hover,
 .router-link-active {
-  color: #0d6efd;
-  background-color: rgba(13, 110, 253, 0.1);
+  color: var(--color-primary);
+  background-color: rgba(65, 90, 119, 0.2);
 }
 
 /* Media query para dispositivos móviles */

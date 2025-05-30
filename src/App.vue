@@ -4,7 +4,7 @@ import FooterComponent from './components/FooterComponent.vue'
 </script>
 
 <template>
-  <div class="d-flex flex-column min-vh-100">
+  <div class="app-container d-flex flex-column min-vh-100">
     <HeaderComponent />
     <main class="flex-grow-1 text-center py-5">
       <RouterView />
@@ -14,7 +14,14 @@ import FooterComponent from './components/FooterComponent.vue'
 </template>
 
 <style scoped>
+.app-container {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
 main {
   font-size: 1.2rem;
+  background-color: var(--color-background);
 }
 </style>
